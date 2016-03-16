@@ -1,14 +1,14 @@
-//CORRER Documentos/programacion/javscript/aruco3
- window.requestAnimFrame = (function(){
+window.requestAnimFrame = (function(){
       return  window.requestAnimationFrame       || 
               window.webkitRequestAnimationFrame || 
               window.mozRequestAnimationFrame    || 
               window.oRequestAnimationFrame      || 
               window.msRequestAnimationFrame     || 
               function(/* function */ callback, /* DOMElement */ element){
-                window.setTimeout(callback, 1000 / 60);
+                window.setTimeout(callback, 10 / 600);
               };
     })();
+var Detector=require('../src/libs/detector.js');
 var Labels=require("../src/class/labels");
 var DetectorAR=require("../src/class/detector");
 var Elemento=require("../src/class/elemento");
@@ -27,7 +27,7 @@ var WIDTH_CANVAS=800,HEIGHT_CANVAS=600;
 var videoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,1000);//THREE.Camera();
 var realidadCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
-var renderer=new THREE.WebGLRenderer();
+var renderer = Detector.webgl? new THREE.WebGLRenderer(): new THREE.CanvasRenderer();
 
 planoCamera.lookAt(planoScene.position);
 renderer.autoClear = false;
@@ -69,21 +69,20 @@ realidadScene.add(markerRoot);
 mano=Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
 mano.definir("./assets/img/mano_escala.png");
-//mano.get().visible=false;
 mano.get().position.z=-1;
 objeto=mano.get();
 objeto.matrixAutoUpdate = false;
-//objeto.visible=false;
 realidadScene.add(objeto);
-var animales=["medusa","ballena","cangrejo","pato"];
+var cartas={animales:["medusa","ballena","cangrejo","pato"],cocina:["pinzas","refractorio","sarten","rallador"]};
+var tipo_memorama="cocina";
 objetos=[],objetos_mesh=[],objetos_3d=[];        
-var animales=["medusa","ballena","cangrejo","pato"];
+//var animales=["medusa","ballena","cangrejo","pato"];
 for(var i=1,columna=-100,fila_pos=i,fila=-150;i<=8;i++,fila_pos=((i==5) ? 1 : fila_pos+1),fila=(fila_pos==1 ? -150 : (fila+80+33)),columna=((i>4) ? 120 : -100)){			
 	var elemento=Elemento(120,120,new THREE.PlaneGeometry(120,120));
     elemento.init();
-	elemento.etiqueta(animales[fila_pos-1]);
+	elemento.etiqueta(cartas[tipo_memorama][fila_pos-1]);
 	elemento.scale(.7,.7);
-	elemento.definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/escala/cart"+i+"_"+animales[fila_pos-1]+".jpg");
+	elemento.definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg");
 	elemento.position(new THREE.Vector3(fila,columna,-600),elemento.getCanvas());	
 	elemento.calculoOrigen();
 	objetos_mesh.push(elemento);

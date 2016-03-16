@@ -1,6 +1,6 @@
 module.exports=function(width_canvas,height_canvas,geometry){
     
-        var width,height,nombre,canvas,context,mesh,image,geometria,origen=new THREE.Vector2(),x,y;
+        var width,height,nombre,canvas,context,geometria,origen=new THREE.Vector2(),x,y;
         var cont=0,elemento_raiz,material_frente,material_atras,textura_frente,textura_atras,imagen_carta,umbral_colision,box,imagen_principal,imagen1,imagen2,estado=true,escalas=new THREE.Vector3(),posiciones=new THREE.Vector3();
         var init=function(){
             canvas=document.createElement("canvas");
@@ -175,7 +175,7 @@ module.exports=function(width_canvas,height_canvas,geometry){
 */
         
         function mostrar(){
-            if(cont<180){
+            if(cont<=180){
                 window.requestAnimFrame(mostrar);    
                 elemento_raiz.rotation.y = THREE.Math.degToRad( cont );  
                 cont++;
@@ -183,7 +183,7 @@ module.exports=function(width_canvas,height_canvas,geometry){
         }
 
         function ocultar(){
-            if(cont>0){
+            if(cont>=0){
                 window.requestAnimFrame(ocultar);    
                 elemento_raiz.rotation.y = THREE.Math.degToRad( cont );  
                 cont--;
@@ -195,15 +195,6 @@ module.exports=function(width_canvas,height_canvas,geometry){
                 ocultar();
             else
                 mostrar();
-            /*
-            imagen_principal=(estado) ? imagen2 : imagen1;
-            imagen_carta.src=imagen_principal;
-                imagen_carta.onload=function(){
-                context.drawImage(imagen_carta,0,0);
-                textura_frente.needsUpdate=true;
-            }
-            estado=(estado) ? false : true;
-            textura_frente.needsUpdate=true;*/
         }
 
         var esParDe=function(objeto){       

@@ -1,15 +1,15 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-//CORRER Documentos/programacion/javscript/aruco3
- window.requestAnimFrame = (function(){
+window.requestAnimFrame = (function(){
       return  window.requestAnimationFrame       || 
               window.webkitRequestAnimationFrame || 
               window.mozRequestAnimationFrame    || 
               window.oRequestAnimationFrame      || 
               window.msRequestAnimationFrame     || 
               function(/* function */ callback, /* DOMElement */ element){
-                window.setTimeout(callback, 1000 / 60);
+                window.setTimeout(callback, 10 / 600);
               };
     })();
+var Detector=require('../src/libs/detector.js');
 var Labels=require("../src/class/labels");
 var DetectorAR=require("../src/class/detector");
 var Elemento=require("../src/class/elemento");
@@ -28,7 +28,7 @@ var WIDTH_CANVAS=800,HEIGHT_CANVAS=600;
 var videoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,1000);//THREE.Camera();
 var realidadCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
-var renderer=new THREE.WebGLRenderer();
+var renderer = Detector.webgl? new THREE.WebGLRenderer(): new THREE.CanvasRenderer();
 
 planoCamera.lookAt(planoScene.position);
 renderer.autoClear = false;
@@ -70,21 +70,20 @@ realidadScene.add(markerRoot);
 mano=Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
 mano.definir("./assets/img/mano_escala.png");
-//mano.get().visible=false;
 mano.get().position.z=-1;
 objeto=mano.get();
 objeto.matrixAutoUpdate = false;
-//objeto.visible=false;
 realidadScene.add(objeto);
-var animales=["medusa","ballena","cangrejo","pato"];
+var cartas={animales:["medusa","ballena","cangrejo","pato"],cocina:["pinzas","refractorio","sarten","rallador"]};
+var tipo_memorama="cocina";
 objetos=[],objetos_mesh=[],objetos_3d=[];        
-var animales=["medusa","ballena","cangrejo","pato"];
+//var animales=["medusa","ballena","cangrejo","pato"];
 for(var i=1,columna=-100,fila_pos=i,fila=-150;i<=8;i++,fila_pos=((i==5) ? 1 : fila_pos+1),fila=(fila_pos==1 ? -150 : (fila+80+33)),columna=((i>4) ? 120 : -100)){			
 	var elemento=Elemento(120,120,new THREE.PlaneGeometry(120,120));
     elemento.init();
-	elemento.etiqueta(animales[fila_pos-1]);
+	elemento.etiqueta(cartas[tipo_memorama][fila_pos-1]);
 	elemento.scale(.7,.7);
-	elemento.definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/escala/cart"+i+"_"+animales[fila_pos-1]+".jpg");
+	elemento.definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg");
 	elemento.position(new THREE.Vector3(fila,columna,-600),elemento.getCanvas());	
 	elemento.calculoOrigen();
 	objetos_mesh.push(elemento);
@@ -197,7 +196,7 @@ function loop(){
 
 initKathia(texto);
 loop();
-},{"../src/class/detector":2,"../src/class/elemento":3,"../src/class/labels":4}],2:[function(require,module,exports){
+},{"../src/class/detector":2,"../src/class/elemento":3,"../src/class/labels":4,"../src/libs/detector.js":5}],2:[function(require,module,exports){
 module.exports=function(canvas_element){
         var JSARRaster,JSARParameters,detector,result;
         function init(){
@@ -284,7 +283,7 @@ module.exports=function(canvas_element){
 },{}],3:[function(require,module,exports){
 module.exports=function(width_canvas,height_canvas,geometry){
     
-        var width,height,nombre,canvas,context,mesh,image,geometria,origen=new THREE.Vector2(),x,y;
+        var width,height,nombre,canvas,context,geometria,origen=new THREE.Vector2(),x,y;
         var cont=0,elemento_raiz,material_frente,material_atras,textura_frente,textura_atras,imagen_carta,umbral_colision,box,imagen_principal,imagen1,imagen2,estado=true,escalas=new THREE.Vector3(),posiciones=new THREE.Vector3();
         var init=function(){
             canvas=document.createElement("canvas");
@@ -459,7 +458,7 @@ module.exports=function(width_canvas,height_canvas,geometry){
 */
         
         function mostrar(){
-            if(cont<180){
+            if(cont<=180){
                 window.requestAnimFrame(mostrar);    
                 elemento_raiz.rotation.y = THREE.Math.degToRad( cont );  
                 cont++;
@@ -467,7 +466,7 @@ module.exports=function(width_canvas,height_canvas,geometry){
         }
 
         function ocultar(){
-            if(cont>0){
+            if(cont>=0){
                 window.requestAnimFrame(ocultar);    
                 elemento_raiz.rotation.y = THREE.Math.degToRad( cont );  
                 cont--;
@@ -479,15 +478,6 @@ module.exports=function(width_canvas,height_canvas,geometry){
                 ocultar();
             else
                 mostrar();
-            /*
-            imagen_principal=(estado) ? imagen2 : imagen1;
-            imagen_carta.src=imagen_principal;
-                imagen_carta.onload=function(){
-                context.drawImage(imagen_carta,0,0);
-                textura_frente.needsUpdate=true;
-            }
-            estado=(estado) ? false : true;
-            textura_frente.needsUpdate=true;*/
         }
 
         var esParDe=function(objeto){       
@@ -595,5 +585,84 @@ module.exports=function(width,height){
 		}
 
 	//}
+}
+},{}],5:[function(require,module,exports){
+/**
+ * @author alteredq / http://alteredqualia.com/
+ * @author mr.doob / http://mrdoob.com/
+ */
+
+var Detector = {
+
+	canvas: !! window.CanvasRenderingContext2D,
+	webgl: ( function () {
+
+		try {
+
+			var canvas = document.createElement( 'canvas' ); return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) );
+
+		} catch ( e ) {
+
+			return false;
+
+		}
+
+	} )(),
+	workers: !! window.Worker,
+	fileapi: window.File && window.FileReader && window.FileList && window.Blob,
+
+	getWebGLErrorMessage: function () {
+
+		var element = document.createElement( 'div' );
+		element.id = 'webgl-error-message';
+		element.style.fontFamily = 'monospace';
+		element.style.fontSize = '13px';
+		element.style.fontWeight = 'normal';
+		element.style.textAlign = 'center';
+		element.style.background = '#fff';
+		element.style.color = '#000';
+		element.style.padding = '1.5em';
+		element.style.width = '400px';
+		element.style.margin = '5em auto 0';
+
+		if ( ! this.webgl ) {
+
+			element.innerHTML = window.WebGLRenderingContext ? [
+				'Your graphics card does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation" style="color:#000">WebGL</a>.<br />',
+				'Find out how to get it <a href="http://get.webgl.org/" style="color:#000">here</a>.'
+			].join( '\n' ) : [
+				'Your browser does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation" style="color:#000">WebGL</a>.<br/>',
+				'Find out how to get it <a href="http://get.webgl.org/" style="color:#000">here</a>.'
+			].join( '\n' );
+
+		}
+
+		return element;
+
+	},
+
+	addGetWebGLMessage: function ( parameters ) {
+
+		var parent, id, element;
+
+		parameters = parameters || {};
+
+		parent = parameters.parent !== undefined ? parameters.parent : document.body;
+		id = parameters.id !== undefined ? parameters.id : 'oldie';
+
+		element = Detector.getWebGLErrorMessage();
+		element.id = id;
+
+		parent.appendChild( element );
+
+	}
+
+};
+
+// browserify support
+if ( typeof module === 'object' ) {
+
+	module.exports = Detector;
+
 }
 },{}]},{},[1,3,2,4]);
