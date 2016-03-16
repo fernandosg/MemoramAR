@@ -1,4 +1,14 @@
 //CORRER Documentos/programacion/javscript/aruco3
+ window.requestAnimFrame = (function(){
+      return  window.requestAnimationFrame       || 
+              window.webkitRequestAnimationFrame || 
+              window.mozRequestAnimationFrame    || 
+              window.oRequestAnimationFrame      || 
+              window.msRequestAnimationFrame     || 
+              function(/* function */ callback, /* DOMElement */ element){
+                window.setTimeout(callback, 1000 / 60);
+              };
+    })();
 var Labels=require("../src/class/labels");
 var DetectorAR=require("../src/class/detector");
 var Elemento=require("../src/class/elemento");
@@ -61,9 +71,8 @@ mano.init();
 mano.definir("./assets/img/mano_escala.png");
 //mano.get().visible=false;
 mano.get().position.z=-1;
-objeto=new THREE.Object3D();
+objeto=mano.get();
 objeto.matrixAutoUpdate = false;
-objeto.add(mano.get());
 //objeto.visible=false;
 realidadScene.add(objeto);
 var animales=["medusa","ballena","cangrejo","pato"];
@@ -88,7 +97,7 @@ textura_kathia.magFilter = THREE.LinearFilter;
 geometria_kathia=new THREE.PlaneGeometry(kathia_ancho,kathia_alto);
 material_kathia=new THREE.MeshBasicMaterial({map:textura_kathia});
 mesh_kathia=new THREE.Mesh(geometria_kathia,material_kathia);	
-mesh_kathia.position.set(-400,-300,-1100);
+mesh_kathia.position.set(530,300,-1100);
 planoScene.add(mesh_kathia);
 
 texto=Labels(250,250);

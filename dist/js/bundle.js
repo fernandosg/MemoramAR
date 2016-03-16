@@ -1,5 +1,15 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 //CORRER Documentos/programacion/javscript/aruco3
+ window.requestAnimFrame = (function(){
+      return  window.requestAnimationFrame       || 
+              window.webkitRequestAnimationFrame || 
+              window.mozRequestAnimationFrame    || 
+              window.oRequestAnimationFrame      || 
+              window.msRequestAnimationFrame     || 
+              function(/* function */ callback, /* DOMElement */ element){
+                window.setTimeout(callback, 1000 / 60);
+              };
+    })();
 var Labels=require("../src/class/labels");
 var DetectorAR=require("../src/class/detector");
 var Elemento=require("../src/class/elemento");
@@ -62,9 +72,8 @@ mano.init();
 mano.definir("./assets/img/mano_escala.png");
 //mano.get().visible=false;
 mano.get().position.z=-1;
-objeto=new THREE.Object3D();
+objeto=mano.get();
 objeto.matrixAutoUpdate = false;
-objeto.add(mano.get());
 //objeto.visible=false;
 realidadScene.add(objeto);
 var animales=["medusa","ballena","cangrejo","pato"];
@@ -89,7 +98,7 @@ textura_kathia.magFilter = THREE.LinearFilter;
 geometria_kathia=new THREE.PlaneGeometry(kathia_ancho,kathia_alto);
 material_kathia=new THREE.MeshBasicMaterial({map:textura_kathia});
 mesh_kathia=new THREE.Mesh(geometria_kathia,material_kathia);	
-mesh_kathia.position.set(-400,-300,-1100);
+mesh_kathia.position.set(530,300,-1100);
 planoScene.add(mesh_kathia);
 
 texto=Labels(250,250);
@@ -274,20 +283,25 @@ module.exports=function(canvas_element){
 }
 },{}],3:[function(require,module,exports){
 module.exports=function(width_canvas,height_canvas,geometry){
-        var width,height,nombre,canvas,context,mesh,material,image,geometria,origen=new THREE.Vector2(),x,y;
-        var imagen_carta,umbral_colision,box,imagen_principal,imagen1,imagen2,estado=true,escalas=new THREE.Vector3(),posiciones=new THREE.Vector3();
+    
+        var width,height,nombre,canvas,context,mesh,image,geometria,origen=new THREE.Vector2(),x,y;
+        var cont=0,elemento_raiz,material_frente,material_atras,textura_frente,textura_atras,imagen_carta,umbral_colision,box,imagen_principal,imagen1,imagen2,estado=true,escalas=new THREE.Vector3(),posiciones=new THREE.Vector3();
         var init=function(){
             canvas=document.createElement("canvas");
             canvas.width=width_canvas;
             canvas.height=height_canvas;
+            elemento_raiz=new THREE.Object3D();
             context=canvas.getContext("2d");
-            textura_principal=new THREE.Texture(canvas);
-            textura_principal.minFilter = THREE.LinearFilter;
-            textura_principal.magFilter = THREE.LinearFilter;
-            material=new THREE.MeshBasicMaterial({map:textura_principal});  
-            material.transparent=true;
+            textura_frente=new THREE.Texture(canvas);
+            textura_atras=new THREE.Texture();
+            textura_frente.minFilter = THREE.LinearFilter;
+            textura_frente.magFilter = THREE.LinearFilter;
+            material_frente=new THREE.MeshBasicMaterial({map:textura_frente});  
+            material_frente.transparent=true;
             geometria=geometry;
-            mesh=new THREE.Mesh(geometria,material);
+            geometria_atras=geometry.clone();
+            mesh=new THREE.Mesh(geometria,material_frente);
+            elemento_raiz.add(mesh);
             width=width_canvas;
             height=height_canvas;   
             imagen_carta=new Image();
@@ -320,7 +334,7 @@ module.exports=function(width_canvas,height_canvas,geometry){
 
         var calculoAncho=function(height_test){
             vFOV = Math.PI/4;
-            height = 2 * Math.tan( Math.PI/8 ) * Math.abs(mesh.position.z-camera.position.z);
+            height = 2 * Math.tan( Math.PI/8 ) * Math.abs(elemento_raiz.position.z-camera.position.z);
             fraction = height_test / height;
             console.log("veamos si funciona "+fraction)
         }
@@ -331,7 +345,7 @@ module.exports=function(width_canvas,height_canvas,geometry){
             imagen_carta.src=ruta;
             imagen_carta.onload=function(){
                 context.drawImage(imagen_carta,0,0);
-                material.map.needsUpdate=true;
+                material_frente.map.needsUpdate=true;
             }
         }
 
@@ -339,36 +353,50 @@ module.exports=function(width_canvas,height_canvas,geometry){
             imagen_carta.src=frontal;
             imagen_carta.onload=function(){
                 context.drawImage(imagen_carta,0,0);
-                material.map.needsUpdate=true;
+                material_frente.map.needsUpdate=true;
             }
-            imagen1=frontal;
-            imagen2=trasera;
+            var imagen_atras=new Image();
+            var canvas2=document.createElement("canvas");
+            canvas2.width=width;
+            canvas2.height=height;
+            var context_canvas=canvas2.getContext("2d");            
+            var textura_atras = new THREE.Texture(canvas2);
+            material_atras=new THREE.MeshBasicMaterial({map:textura_atras,color:0xcccccc});
+            mesh2=new THREE.Mesh(geometria_atras,material_atras);            
+
+            geometria_atras.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI ) );
+            elemento_raiz.add(mesh2);
+            imagen_atras.src=trasera;
+            imagen_atras.onload=function(){
+                context_canvas.drawImage(imagen_atras,0,0);
+                material_atras.map.needsUpdate=true;
+            }
             imagen_principal=frontal;    
         }
 
         var getDimensiones=function(){
-            return {width:width,height:height,position:posiciones,geometry:mesh.geometry};
+            return {width:width,height:height,position:posiciones,geometry:elemento_raiz.geometry};
         }
 
         var get=function(){
-            return mesh;
+            return elemento_raiz;
         }
 
         function actualizarMedidas(){
-            width=width*mesh.scale.x;
-            height=height*mesh.scale.y;
+            width=width*elemento_raiz.scale.x;
+            height=height*elemento_raiz.scale.y;
             cambiarUmbral(1);
             console.log("actualice medidas "+width+" "+height);
         }
 
         var scale=function(x,y){
-            mesh.scale.x=x;
-            mesh.scale.y=y;        
+            elemento_raiz.scale.x=x;
+            elemento_raiz.scale.y=y;        
             actualizarMedidas();
         }
 
         var position=function(pos){
-            mesh.position.set(pos.x,pos.y,pos.z);
+            elemento_raiz.position.set(pos.x,pos.y,pos.z);
             x=pos.x;
             y=pos.y;
             posiciones=pos;
@@ -376,13 +404,13 @@ module.exports=function(width_canvas,height_canvas,geometry){
 
 
         var actualizar=function(){
-            material.map.needsUpdate=true;
-            if(x!=mesh.position.x || y!=mesh.position.y){           
-                x=mesh.position.x;
-                y=mesh.position.y;
-                posiciones.x=mesh.position.x;
-                posiciones.y=mesh.position.y;
-                posiciones.z=mesh.position.z;
+            material_frente.map.needsUpdate=true;
+            if(x!=elemento_raiz.position.x || y!=elemento_raiz.position.y){           
+                x=elemento_raiz.position.x;
+                y=elemento_raiz.position.y;
+                posiciones.x=elemento_raiz.position.x;
+                posiciones.y=elemento_raiz.position.y;
+                posiciones.z=elemento_raiz.position.z;
                 calculoOrigen();
             }
         }
@@ -430,24 +458,44 @@ module.exports=function(width_canvas,height_canvas,geometry){
          }
 */
         
+        function mostrar(){
+            if(cont<180){
+                window.requestAnimFrame(mostrar);    
+                elemento_raiz.rotation.y = THREE.Math.degToRad( cont );  
+                cont++;
+            }
+        }
 
+        function ocultar(){
+            if(cont>0){
+                window.requestAnimFrame(ocultar);    
+                elemento_raiz.rotation.y = THREE.Math.degToRad( cont );  
+                cont--;
+            }
+        }
         var voltear=function(){
+            estado=(estado) ? false : true;
+            if(estado)
+                ocultar();
+            else
+                mostrar();
+            /*
             imagen_principal=(estado) ? imagen2 : imagen1;
             imagen_carta.src=imagen_principal;
                 imagen_carta.onload=function(){
                 context.drawImage(imagen_carta,0,0);
-                textura_principal.needsUpdate=true;
+                textura_frente.needsUpdate=true;
             }
             estado=(estado) ? false : true;
-            textura_principal.needsUpdate=true;
+            textura_frente.needsUpdate=true;*/
         }
 
         var esParDe=function(objeto){       
-            return nombre==objeto.getNombre() && mesh.id!=objeto.get().id;
+            return nombre==objeto.getNombre() && elemento_raiz.id!=objeto.get().id;
         }
 
         var igualA=function(objeto){
-            return mesh.id==objeto.get().id;
+            return elemento_raiz.id==objeto.get().id;
         }
 
         var getOrigen=function(){
