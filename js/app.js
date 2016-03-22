@@ -20,6 +20,7 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
           m[3], m[7], m[11], m[15]
         );
     }
+
 var error = new Audio("./assets/sounds/error.wav"); // buffers automatically when created
 var acierto = new Audio("./assets/sounds/acierto.wav"); 
 var videoScene=new THREE.Scene(),realidadScene=new THREE.Scene(),planoScene=new THREE.Scene();
@@ -27,8 +28,8 @@ var WIDTH_CANVAS=800,HEIGHT_CANVAS=600;
 var videoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,1000);//THREE.Camera();
 var realidadCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
-var renderer = Detector.webgl? new THREE.WebGLRenderer(): new THREE.CanvasRenderer();
-
+//webglAvailable();
+var renderer = new THREE.WebGLRenderer();;
 planoCamera.lookAt(planoScene.position);
 renderer.autoClear = false;
 renderer.setSize(WIDTH_CANVAS,HEIGHT_CANVAS);
@@ -66,7 +67,7 @@ realidadScene.add(markerRoot);
 
 
 
-mano=Elemento(60,60,new THREE.PlaneGeometry(60,60));
+mano=new Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
 mano.definir("./assets/img/mano_escala.png");
 mano.get().position.z=-1;
@@ -77,9 +78,9 @@ var cartas={animales:["medusa","ballena","cangrejo","pato"],cocina:["pinzas","re
 var tipo_memorama="cocina";
 objetos=[],objetos_mesh=[],objetos_3d=[];        
 //var animales=["medusa","ballena","cangrejo","pato"];
-for(var i=1,columna=-100,fila_pos=i,fila=-150;i<=8;i++,fila_pos=((i==5) ? 1 : fila_pos+1),fila=(fila_pos==1 ? -150 : (fila+80+33)),columna=((i>4) ? 120 : -100)){			
-	var elemento=Elemento(120,120,new THREE.PlaneGeometry(120,120));
-    elemento.init();
+for(var i=1,columna=-100,fila_pos=i,fila=-200;i<=8;i++,fila_pos=((i==5) ? 1 : fila_pos+1),fila=(fila_pos==1 ? -200 : (fila+80+33)),columna=((i>4) ? 120 : -100)){			
+	var elemento=new Elemento(120,120,new THREE.PlaneGeometry(120,120));
+  elemento.init();
 	elemento.etiqueta(cartas[tipo_memorama][fila_pos-1]);
 	elemento.scale(.7,.7);
 	elemento.definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg");
