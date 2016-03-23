@@ -1,14 +1,4 @@
-function Animacion(){
-	window.requestAnimFrame = (function(){
-      return  window.requestAnimationFrame       || 
-              window.webkitRequestAnimationFrame || 
-              window.mozRequestAnimationFrame    || 
-              window.oRequestAnimationFrame      || 
-              window.msRequestAnimationFrame     || 
-              function(/* function */ callback, /* DOMElement */ element){
-                window.setTimeout(callback, 10 / 600);
-              };
-    })();
+function Animacion(){	
 }
 
 Animacion.prototype.easein=function(objeto,limit_z,limit_z_fuera){

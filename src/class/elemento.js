@@ -183,26 +183,6 @@ Elemento.prototype.init=function(){
         Elemento.prototype.decrementGrados=function(){
             this.cont--;
         }
-        
-        Elemento.prototype.mostrar=function(parent){            
-            if(parent.cont<=180){
-                window.requestAnimationFrame(function(){
-                    parent.mostrar(parent);
-                });    
-                parent.elemento_raiz.rotation.y = THREE.Math.degToRad(parent.cont );  
-                parent.cont++;
-            }
-        }
-
-        Elemento.prototype.ocultar=function(parent){
-            if(parent.cont>=0){
-                window.requestAnimationFrame(function(){
-                    parent.ocultar(parent);
-                }); 
-                parent.elemento_raiz.rotation.y = THREE.Math.degToRad( parent.cont );  
-                parent.cont--;
-            }
-        }
         Elemento.prototype.voltear=function(){
             this.estado=(this.estado) ? false : true;
             if(this.estado){
