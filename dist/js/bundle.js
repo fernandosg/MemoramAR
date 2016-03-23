@@ -5,8 +5,8 @@ window.requestAnimFrame = (function(){
               window.mozRequestAnimationFrame    || 
               window.oRequestAnimationFrame      || 
               window.msRequestAnimationFrame     || 
-              function(/* function */ callback, /* DOMElement */ element){
-                window.setTimeout(callback, 10 / 600);
+              function(/* function */ callback, /* DOMElement */ element){                
+                window.setTimeout(callback(cont), 10 / 600);
               };
     })();
 var Detector=require('../src/libs/detector.js');
@@ -30,7 +30,7 @@ var videoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,10
 var realidadCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
 //webglAvailable();
-var renderer = new THREE.WebGLRenderer();;
+var renderer = new THREE.WebGLRenderer();
 planoCamera.lookAt(planoScene.position);
 renderer.autoClear = false;
 renderer.setSize(WIDTH_CANVAS,HEIGHT_CANVAS);
@@ -70,7 +70,7 @@ realidadScene.add(markerRoot);
 
 mano=new Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
-mano.definir("./assets/img/mano_escala.png");
+mano.definir("../assets/img/mano_escala.png");
 mano.get().position.z=-1;
 objeto=mano.get();
 objeto.matrixAutoUpdate = false;
@@ -78,21 +78,22 @@ realidadScene.add(objeto);
 var cartas={animales:["medusa","ballena","cangrejo","pato"],cocina:["pinzas","refractorio","sarten","rallador"]};
 var tipo_memorama="cocina";
 objetos=[],objetos_mesh=[],objetos_3d=[];        
-//var animales=["medusa","ballena","cangrejo","pato"];
 for(var i=1,columna=-100,fila_pos=i,fila=-200;i<=8;i++,fila_pos=((i==5) ? 1 : fila_pos+1),fila=(fila_pos==1 ? -200 : (fila+80+33)),columna=((i>4) ? 120 : -100)){			
 	var elemento=new Elemento(120,120,new THREE.PlaneGeometry(120,120));
   elemento.init();
 	elemento.etiqueta(cartas[tipo_memorama][fila_pos-1]);
-	elemento.scale(.7,.7);
-	elemento.definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg");
-	elemento.position(new THREE.Vector3(fila,columna,-600),elemento.getCanvas());	
-	elemento.calculoOrigen();
-	objetos_mesh.push(elemento);
-	objetos.push(elemento);
-    planoScene.add(elemento.get());
+	elemento.scale(.7,.7);  
+  elemento.position(new THREE.Vector3(fila,columna,-600));  
+  elemento.calculoOrigen();
+  objetos_mesh.push(elemento);
+  objetos.push(elemento);
+  planoScene.add(elemento.get());
+	objetos[objetos.length-1].definirCaras("../assets/img/memorama/sin_voltear.jpg","../assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg",
+    objetos[objetos.length-1]);  
 }
 var material_kathia;
 textura_kathia=new THREE.Texture(renderer_pixi.view);
+textura_kathia.name="kathia";
 textura_kathia.minFilter = THREE.LinearFilter;
 textura_kathia.magFilter = THREE.LinearFilter;
 geometria_kathia=new THREE.PlaneGeometry(kathia_ancho,kathia_alto);
@@ -171,7 +172,7 @@ function rendering(){
 
 function loop(){
 	camara3d.children[0].material.map.needsUpdate=true;
-    objeto.children[0].material.needsUpdate=true;    
+    //objeto.children[0].material.needsUpdate=true;    
     for(var i=0;i<objetos.length;i++){
     	objetos[i].actualizar();
     }
@@ -197,7 +198,7 @@ function loop(){
 
 initKathia(texto);
 loop();
-},{"../src/class/detector":2,"../src/class/elemento":3,"../src/class/labels":4,"../src/libs/detector.js":5}],2:[function(require,module,exports){
+},{"../src/class/detector":2,"../src/class/elemento":3,"../src/class/labels":4,"../src/libs/detector.js":6}],2:[function(require,module,exports){
 module.exports=function(canvas_element){
         var JSARRaster,JSARParameters,detector,result;
         function init(){
@@ -282,10 +283,12 @@ module.exports=function(canvas_element){
         }
 }
 },{}],3:[function(require,module,exports){
+var Animacion=require('../libs/animacion.js');
 function Elemento(width_canvas,height_canvas,geometry){
     this.width=width_canvas;
     this.height=height_canvas;
     this.geometry=geometry,this.origen=new THREE.Vector2(),this.cont=0,this.estado=true,this.escalas=new THREE.Vector3(),this.posiciones=new THREE.Vector3();   
+    this.animacion=new Animacion();
 }
 
 
@@ -294,21 +297,9 @@ Elemento.prototype.cambiarUmbral=function(escala){
     this.umbral_colision=this.width/4;
 }            
 Elemento.prototype.init=function(){
-    this.canvas=document.createElement("canvas");
-    this.canvas.width=this.width;
-    this.canvas.height=this.height;
     this.elemento_raiz=new THREE.Object3D();
-    this.context=this.canvas.getContext("2d");
-    this.textura_frente=new THREE.Texture(this.canvas);
-    this.textura_atras=new THREE.Texture();
-    this.textura_frente.minFilter = THREE.LinearFilter;
-    this.textura_frente.magFilter = THREE.LinearFilter;
-    this.material_frente=new THREE.MeshBasicMaterial({map:this.textura_frente});  
-    this.material_frente.transparent=true;
     this.geometria_atras=this.geometry.clone();
-    this.mesh=new THREE.Mesh(this.geometry,this.material_frente);
-    this.elemento_raiz.add(this.mesh);  
-    this.imagen_carta=new Image();
+    this.textureLoader = new THREE.TextureLoader();
     this.cambiarUmbral(1);    
 }
 
@@ -338,37 +329,75 @@ Elemento.prototype.init=function(){
         
 
         Elemento.prototype.definir=function(ruta){
-            this.imagen_carta.src=ruta;
             parent=this;
-            this.imagen_carta.onload=function(){
-                parent.context.drawImage(parent.imagen_carta,0,0);
-                parent.material_frente.map.needsUpdate=true;
-            }
+            texture=this.textureLoader.load( ruta, function() {
+            //texture = THREE.ImageUtils.loadTexture(ruta, undefined, function() {
+
+                // the rest of your code here...
+
+                this.textura_frente = texture.clone();
+
+                this.textura_frente.minFilter = THREE.LinearFilter;
+                this.textura_frente.magFilter = THREE.LinearFilter;
+                this.material_frente=new THREE.MeshBasicMaterial({map:this.textura_frente});  
+                this.material_frente.transparent=true;
+                this.mesh=new THREE.Mesh(this.geometry,this.material_frente);
+                parent.elemento_raiz.add(this.mesh);  
+                textura_frente.needsUpdate = true;
+
+            });
         }
 
-        Elemento.prototype.definirCaras=function(frontal,trasera){        
-            this.imagen_carta.src=frontal;
-            var parent=this;
-            this.imagen_carta.onload=function(){
-                parent.context.drawImage(parent.imagen_carta,0,0);
-                parent.material_frente.map.needsUpdate=true;
-            }
-            var imagen_atras=new Image();
-            var canvas2=document.createElement("canvas");
-            canvas2.width=this.width;
-            canvas2.height=this.height;
-            var context_canvas=canvas2.getContext("2d");               
+        Elemento.prototype.actualizarMaterialAtras=function(texture2){
+            this.textura_atras = texture2.clone();
             this.textura_atras.minFilter = THREE.LinearFilter;
             this.textura_atras.magFilter = THREE.LinearFilter;
-            this.material_atras=new THREE.MeshBasicMaterial({map:this.textura_atras,color:0xcccccc});
-            mesh2=new THREE.Mesh(this.geometria_atras,this.material_atras);                        
+            this.material_atras=new THREE.MeshBasicMaterial({map:this.textura_atras});  
+            this.material_atras.transparent=true;
+
             this.geometria_atras.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI ) );
-            this.elemento_raiz.add(mesh2);
-            imagen_atras.src=trasera;
-            imagen_atras.onload=function(){
-                context_canvas.drawImage(imagen_atras,0,0);
-                parent.material_atras.map.needsUpdate=true;
-            }  
+            this.mesh2=new THREE.Mesh(this.geometria_atras,this.material_atras);
+            this.elemento_raiz.add(this.mesh2);  
+            this.textura_atras.needsUpdate = true;
+        }
+
+        Elemento.prototype.actualizarMaterialFrente=function(texture1){
+            this.textura_frente = texture1.clone();
+            this.textura_frente.minFilter = THREE.LinearFilter;
+            this.textura_frente.magFilter = THREE.LinearFilter;
+            this.material_frente=new THREE.MeshBasicMaterial({map:this.textura_frente});  
+            this.material_frente.transparent=true;
+            this.mesh=new THREE.Mesh(this.geometry,this.material_frente);
+            this.elemento_raiz.add(this.mesh);  
+            this.textura_frente.needsUpdate = true;
+        }
+
+        Elemento.prototype.definirCaras=function(frontal,trasera,objeto){ 
+            parent=this;
+            console.dir(this.textureLoader); 
+            this.textureLoader.load( frontal, function(texture1) {
+                objeto.actualizarMaterialFrente(texture1);
+                parent.textureLoader.load(trasera, function(texture2) {                    
+                    objeto.actualizarMaterialAtras(texture2);                                       
+                });  
+            });
+            
+        }
+
+        Elemento.prototype.getTexturaAtras=function(){
+            return this.textura_atras;
+        }
+
+        Elemento.prototype.getTexturaFrente=function(){
+            return this.textura_frente;
+        }
+
+        Elemento.prototype.getMaterialAtras=function(){
+            return this.material_atras;
+        }
+
+        Elemento.prototype.getMaterialFrente=function(){
+            return material_frente;
         }
 
         Elemento.prototype.getDimensiones=function(){
@@ -400,7 +429,8 @@ Elemento.prototype.init=function(){
 
 
         Elemento.prototype.actualizar=function(){
-            this.material_frente.map.needsUpdate=true;
+            for(var i=0;i<this.elemento_raiz.children.length;i++)
+                this.elemento_raiz.children[i].material.map.needsUpdate=true;
             if(this.x!=this.elemento_raiz.position.x ||this.y!=this.elemento_raiz.position.y){           
                this.x=this.elemento_raiz.position.x;
                this.y=this.elemento_raiz.position.y;
@@ -411,9 +441,7 @@ Elemento.prototype.init=function(){
             }
         }
 
-        Elemento.prototype.getCanvas=function(){
-            return this.canvas;
-        }
+       
 
         Elemento.prototype.colisiona=function(mano){
             box_mano=new THREE.Box3().setFromObject(mano);
@@ -425,28 +453,48 @@ Elemento.prototype.init=function(){
             return box_carta.center().distanceTo(medidas)<=63;
         }
 
+        Elemento.prototype.getGradosActual=function(){
+            return this.cont;
+        }
+
+        Elemento.prototype.rotarY=function(grados){
+            this.elemento_raiz.rotation.y=grados;
+        }
+
+        Elemento.prototype.incrementGrados=function(){
+            this.cont++;
+        }
+
+        Elemento.prototype.decrementGrados=function(){
+            this.cont--;
+        }
         
-        Elemento.prototype.mostrar=function(){
-            if(this.cont<=180){
-                window.requestAnimFrame(this.mostrar);    
-                this.elemento_raiz.rotation.y = THREE.Math.degToRad( this.cont );  
-                this.cont++;
+        Elemento.prototype.mostrar=function(parent){            
+            if(parent.cont<=180){
+                window.requestAnimationFrame(function(){
+                    parent.mostrar(parent);
+                });    
+                parent.elemento_raiz.rotation.y = THREE.Math.degToRad(parent.cont );  
+                parent.cont++;
             }
         }
 
-        Elemento.prototype.ocultar=function(){
-            if(this.cont>=0){
-                window.requestAnimFrame(this.ocultar);    
-                this.elemento_raiz.rotation.y = THREE.Math.degToRad( this.cont );  
-                this.cont--;
+        Elemento.prototype.ocultar=function(parent){
+            if(parent.cont>=0){
+                window.requestAnimationFrame(function(){
+                    parent.ocultar(parent);
+                }); 
+                parent.elemento_raiz.rotation.y = THREE.Math.degToRad( parent.cont );  
+                parent.cont--;
             }
         }
         Elemento.prototype.voltear=function(){
             this.estado=(this.estado) ? false : true;
-            if(this.estado)
-                this.ocultar();
-            else
-                this.mostrar();
+            if(this.estado){
+                this.animacion.ocultar(this,this.animacion);//this.ocultar(this);
+            }else{
+                this.animacion.mostrar(this,this.animacion,180);
+            }
         }
 
         Elemento.prototype.esParDe=function(objeto){       
@@ -478,7 +526,7 @@ Elemento.prototype.init=function(){
             this.calculoOrigen();
         }
 module.exports=Elemento;
-},{}],4:[function(require,module,exports){
+},{"../libs/animacion.js":5}],4:[function(require,module,exports){
 module.exports=function(width,height){
 	//var Labels=function(){
 		var canvas,context,material,textura,sprite,x_origen,y_origen;
@@ -530,6 +578,67 @@ module.exports=function(width,height){
 	//}
 }
 },{}],5:[function(require,module,exports){
+function Animacion(){
+	window.requestAnimFrame = (function(){
+      return  window.requestAnimationFrame       || 
+              window.webkitRequestAnimationFrame || 
+              window.mozRequestAnimationFrame    || 
+              window.oRequestAnimationFrame      || 
+              window.msRequestAnimationFrame     || 
+              function(/* function */ callback, /* DOMElement */ element){
+                window.setTimeout(callback, 10 / 600);
+              };
+    })();
+}
+
+Animacion.prototype.easein=function(objeto,limit_z,limit_z_fuera){
+	var limit_z_ocultar,mostrado=false;
+	var parent=this;
+	this.mostrar=function(){
+		if(objeto.position.z<=limit_z){
+			objeto.position.z+=100
+			window.requestAnimFrame(mostrar); 
+			mostrado=true; 		 
+		}else if(mostrado){
+			limit_z_ocultar=limit_z_fuera;
+			setTimeout(function(){
+				parent.ocultar();
+				mostrado=false;
+			},3000)
+		}
+	}
+	this.ocultar=function(){
+		if(objeto.position.z>limit_z_ocultar){
+			objeto.position.z-=100;
+			window.requestAnimFrame(this.ocultar);		
+		}else
+			mostrado=false;
+	}
+}
+
+Animacion.prototype.mostrar=function(objeto,animation,grados){
+	if(objeto.getGradosActual()<=grados){
+        window.requestAnimationFrame(function(){
+        	animation.mostrar(objeto,animation,grados);
+        });    
+        objeto.rotarY(THREE.Math.degToRad(objeto.getGradosActual()));
+        objeto.incrementGrados();
+    }
+}
+
+Animacion.prototype.ocultar=function(objeto,animation){
+	 if(objeto.getGradosActual()>=0){
+        window.requestAnimationFrame(function(){
+            animation.ocultar(objeto,animation);
+        }); 
+        objeto.rotarY(THREE.Math.degToRad( objeto.getGradosActual()));
+        objeto.decrementGrados();
+    }
+}
+module.exports=Animacion;
+
+
+},{}],6:[function(require,module,exports){
 /**
  * @author alteredq / http://alteredqualia.com/
  * @author mr.doob / http://mrdoob.com/

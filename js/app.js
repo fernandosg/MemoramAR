@@ -4,8 +4,8 @@ window.requestAnimFrame = (function(){
               window.mozRequestAnimationFrame    || 
               window.oRequestAnimationFrame      || 
               window.msRequestAnimationFrame     || 
-              function(/* function */ callback, /* DOMElement */ element){
-                window.setTimeout(callback, 10 / 600);
+              function(/* function */ callback, /* DOMElement */ element){                
+                window.setTimeout(callback(cont), 10 / 600);
               };
     })();
 var Detector=require('../src/libs/detector.js');
@@ -29,7 +29,7 @@ var videoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,10
 var realidadCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
 //webglAvailable();
-var renderer = new THREE.WebGLRenderer();;
+var renderer = new THREE.WebGLRenderer();
 planoCamera.lookAt(planoScene.position);
 renderer.autoClear = false;
 renderer.setSize(WIDTH_CANVAS,HEIGHT_CANVAS);
@@ -69,7 +69,7 @@ realidadScene.add(markerRoot);
 
 mano=new Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
-mano.definir("./assets/img/mano_escala.png");
+mano.definir("../assets/img/mano_escala.png");
 mano.get().position.z=-1;
 objeto=mano.get();
 objeto.matrixAutoUpdate = false;
@@ -77,21 +77,22 @@ realidadScene.add(objeto);
 var cartas={animales:["medusa","ballena","cangrejo","pato"],cocina:["pinzas","refractorio","sarten","rallador"]};
 var tipo_memorama="cocina";
 objetos=[],objetos_mesh=[],objetos_3d=[];        
-//var animales=["medusa","ballena","cangrejo","pato"];
 for(var i=1,columna=-100,fila_pos=i,fila=-200;i<=8;i++,fila_pos=((i==5) ? 1 : fila_pos+1),fila=(fila_pos==1 ? -200 : (fila+80+33)),columna=((i>4) ? 120 : -100)){			
 	var elemento=new Elemento(120,120,new THREE.PlaneGeometry(120,120));
   elemento.init();
 	elemento.etiqueta(cartas[tipo_memorama][fila_pos-1]);
-	elemento.scale(.7,.7);
-	elemento.definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg");
-	elemento.position(new THREE.Vector3(fila,columna,-600),elemento.getCanvas());	
-	elemento.calculoOrigen();
-	objetos_mesh.push(elemento);
-	objetos.push(elemento);
-    planoScene.add(elemento.get());
+	elemento.scale(.7,.7);  
+  elemento.position(new THREE.Vector3(fila,columna,-600));  
+  elemento.calculoOrigen();
+  objetos_mesh.push(elemento);
+  objetos.push(elemento);
+  planoScene.add(elemento.get());
+	objetos[objetos.length-1].definirCaras("../assets/img/memorama/sin_voltear.jpg","../assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg",
+    objetos[objetos.length-1]);  
 }
 var material_kathia;
 textura_kathia=new THREE.Texture(renderer_pixi.view);
+textura_kathia.name="kathia";
 textura_kathia.minFilter = THREE.LinearFilter;
 textura_kathia.magFilter = THREE.LinearFilter;
 geometria_kathia=new THREE.PlaneGeometry(kathia_ancho,kathia_alto);
@@ -170,7 +171,7 @@ function rendering(){
 
 function loop(){
 	camara3d.children[0].material.map.needsUpdate=true;
-    objeto.children[0].material.needsUpdate=true;    
+    //objeto.children[0].material.needsUpdate=true;    
     for(var i=0;i<objetos.length;i++){
     	objetos[i].actualizar();
     }
