@@ -20,7 +20,7 @@ Elemento.prototype.init=function(){
 
 
         Elemento.prototype.etiqueta=function(etiqueta){
-            nombre=etiqueta
+            this.nombre=etiqueta
         }
 
         Elemento.prototype.dimensiones=function(){
@@ -188,8 +188,13 @@ Elemento.prototype.init=function(){
             }
         }
 
-        Elemento.prototype.esParDe=function(objeto){       
-            return this.nombre==objeto.getNombre() && this.elemento_raiz.id!=objeto.get().id;
+
+        Elemento.prototype.getNombre=function(){
+            return this.nombre;
+        }
+
+        Elemento.prototype.esParDe=function(objeto){      
+            return this.getNombre()==objeto.getNombre() && this.elemento_raiz.id!=objeto.get().id;
         }
 
         Elemento.prototype.igualA=function(objeto){
@@ -198,9 +203,6 @@ Elemento.prototype.init=function(){
 
         Elemento.prototype.getOrigen=function(){
             return origen;
-        }
-        Elemento.prototype.getNombre=function(){
-            return nombre;
         }
 
         Elemento.prototype.getUmbral=function(){

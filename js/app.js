@@ -24,7 +24,7 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 var error = new Audio("./assets/sounds/error.wav"); // buffers automatically when created
 var acierto = new Audio("./assets/sounds/acierto.wav"); 
 var videoScene=new THREE.Scene(),realidadScene=new THREE.Scene(),planoScene=new THREE.Scene();
-var WIDTH_CANVAS=800,HEIGHT_CANVAS=600;
+var WIDTH_CANVAS=640,HEIGHT_CANVAS=480;
 var videoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,1000);//THREE.Camera();
 var realidadCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
@@ -137,13 +137,13 @@ var detector_ar=DetectorAR(canvas_element);
 detector_ar.init();
 detector_ar.setCameraMatrix(realidadCamera);
 var pares=0;
-var detectados=[];
+detectados=[];
 function logicaMemorama(pos_colision){  
-    console.log("hubo colision con "+objetos_mesh[pos_colision].getNombre()+" "+pos_colision);   
     if(detectados.length==1 && detectados[0].igualA(objetos_mesh[pos_colision])){
 
     }else if(detectados.length==1 && detectados[0].esParDe(objetos_mesh[pos_colision])){        
         platicarModificada("acierto");
+        indicador_acierto.easein();
         acierto.play();
         objetos_mesh[pos_colision].voltear();               
         objetos_mesh[pos_colision]=null;
@@ -152,8 +152,10 @@ function logicaMemorama(pos_colision){
     }else if(detectados.length==0){     
         objetos_mesh[pos_colision].voltear();
         detectados.push(objetos_mesh[pos_colision]);
-    }else if(detectados[0].get.id!=objetos_mesh[pos_colision]){     
+    }else if(detectados[0].get().id!=objetos_mesh[pos_colision].get().id){     
         platicarModificada("error_por_intento");
+        indicador_error.easein();
+        console.log(detectados[0].esParDe(objetos_mesh[pos_colision]));
         error.play();
         detectados[0].voltear();
         detectados.pop();
@@ -167,7 +169,7 @@ function verificarColision(){
         if(objetos_mesh[i]==null)
             continue;
 		if(objetos[i].colisiona(objeto)){//if(mano.colisiona(objetos[i].get())){
-			console.log("Colisiona con "+objetos[i].getNombre()+" "+i);	
+			//console.log("Colisiona con "+objetos[i].getNombre()+" "+i);	
             logicaMemorama(i);
         }	
 	}
@@ -186,7 +188,8 @@ function loop(){
 	camara3d.children[0].material.map.needsUpdate=true;
   indicador_acierto.actualizar();
   indicador_error.actualizar();
-  //objeto.children[0].material.needsUpdate=true;    
+  for(var i=0;i<objeto.children.length;i++)
+    objeto.children[i].material.needsUpdate=true;    
     for(var i=0;i<objetos.length;i++){
     	objetos[i].actualizar();
     }
@@ -196,10 +199,10 @@ function loop(){
 	textura_kathia.needsUpdate=true;
     detectado=detector_ar.markerToObject(objeto);
     if(detectado){
-        if(objeto.getWorldPosition().z<523)
-        console.log("FUE DETECTADO "+detectado+" pero estas muy lejos");
-        else if(objeto.getWorldPosition().z<=623){
-            console.log("FUE DETECTADO "+detectado+" y estas bien de lejano");
+        if(objeto.getWorldPosition().z<523){
+        //console.log("FUE DETECTADO "+detectado+" pero estas muy lejos");
+        }else if(objeto.getWorldPosition().z<=623){
+            //console.log("FUE DETECTADO "+detectado+" y estas bien de lejano");
             verificarColision();
         }
     }
