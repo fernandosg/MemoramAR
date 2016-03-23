@@ -468,26 +468,6 @@ Elemento.prototype.init=function(){
         Elemento.prototype.decrementGrados=function(){
             this.cont--;
         }
-        
-        Elemento.prototype.mostrar=function(parent){            
-            if(parent.cont<=180){
-                window.requestAnimationFrame(function(){
-                    parent.mostrar(parent);
-                });    
-                parent.elemento_raiz.rotation.y = THREE.Math.degToRad(parent.cont );  
-                parent.cont++;
-            }
-        }
-
-        Elemento.prototype.ocultar=function(parent){
-            if(parent.cont>=0){
-                window.requestAnimationFrame(function(){
-                    parent.ocultar(parent);
-                }); 
-                parent.elemento_raiz.rotation.y = THREE.Math.degToRad( parent.cont );  
-                parent.cont--;
-            }
-        }
         Elemento.prototype.voltear=function(){
             this.estado=(this.estado) ? false : true;
             if(this.estado){
@@ -578,17 +558,7 @@ module.exports=function(width,height){
 	//}
 }
 },{}],5:[function(require,module,exports){
-function Animacion(){
-	window.requestAnimFrame = (function(){
-      return  window.requestAnimationFrame       || 
-              window.webkitRequestAnimationFrame || 
-              window.mozRequestAnimationFrame    || 
-              window.oRequestAnimationFrame      || 
-              window.msRequestAnimationFrame     || 
-              function(/* function */ callback, /* DOMElement */ element){
-                window.setTimeout(callback, 10 / 600);
-              };
-    })();
+function Animacion(){	
 }
 
 Animacion.prototype.easein=function(objeto,limit_z,limit_z_fuera){
