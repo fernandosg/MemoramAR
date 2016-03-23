@@ -47,7 +47,6 @@ videoTexture.magFilter = THREE.LinearFilter;
 movieMaterial = new THREE.MeshBasicMaterial( { map: videoTexture, depthTest: false, depthWrite: false} );//new THREE.MeshBasicMaterial( { map: videoTexture, overdraw: true, side:THREE.DoubleSide } );			
 var movieGeometry = new THREE.PlaneGeometry(1,1,0.0);
 movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );
-				//movieScreen.position.set(0,50,0);//*/		
 camara3d=new THREE.Object3D();
 camara3d.position.z=-1;
 camara3d.add(movieScreen);
@@ -70,11 +69,25 @@ realidadScene.add(markerRoot);
 
 mano=new Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
-mano.definir("../assets/img/mano_escala.png");
+mano.definir("../assets/img/mano_escala.png",mano);
 mano.get().position.z=-1;
 objeto=mano.get();
 objeto.matrixAutoUpdate = false;
 realidadScene.add(objeto);
+///*
+indicador_acierto=new Elemento(500,500,new THREE.PlaneGeometry(500,500));
+indicador_acierto.init();
+indicador_acierto.definir("../assets/img/scale/star.png",indicador_acierto);
+indicador_acierto.position(new THREE.Vector3(0,0,-2500));
+planoScene.add(indicador_acierto.get());
+
+indicador_error=new Elemento(500,500,new THREE.PlaneGeometry(500,500));
+indicador_error.init();
+indicador_error.definir("../assets/img/scale/error.png",indicador_error);
+indicador_error.position(new THREE.Vector3(0,0,-2500));
+planoScene.add(indicador_error.get());
+//*/
+
 var cartas={animales:["medusa","ballena","cangrejo","pato"],cocina:["pinzas","refractorio","sarten","rallador"]};
 var tipo_memorama="cocina";
 objetos=[],objetos_mesh=[],objetos_3d=[];        
@@ -165,14 +178,16 @@ function rendering(){
 	renderer.clear();
 	renderer.render( videoScene, videoCamera );
 	renderer.clearDepth();
-    renderer.render( planoScene, planoCamera );
-    renderer.clearDepth();
+  renderer.render( planoScene, planoCamera );
+  renderer.clearDepth();
 	renderer.render( realidadScene, realidadCamera );
 }
 
 function loop(){
 	camara3d.children[0].material.map.needsUpdate=true;
-    //objeto.children[0].material.needsUpdate=true;    
+  indicador_acierto.actualizar();
+  indicador_error.actualizar();
+  //objeto.children[0].material.needsUpdate=true;    
     for(var i=0;i<objetos.length;i++){
     	objetos[i].actualizar();
     }
@@ -189,7 +204,6 @@ function loop(){
             verificarColision();
         }
     }
-	//detectarMarcador();
 	rendering();
 	requestAnimationFrame(loop);
 	if(!pausado_kathia)
@@ -328,22 +342,13 @@ Elemento.prototype.init=function(){
 
         
 
-        Elemento.prototype.definir=function(ruta){
+        Elemento.prototype.definir=function(ruta,objeto){
             parent=this;
-            texture=this.textureLoader.load( ruta, function() {
+            this.textureLoader.load( ruta, function(texture) {
             //texture = THREE.ImageUtils.loadTexture(ruta, undefined, function() {
 
                 // the rest of your code here...
-
-                this.textura_frente = texture.clone();
-
-                this.textura_frente.minFilter = THREE.LinearFilter;
-                this.textura_frente.magFilter = THREE.LinearFilter;
-                this.material_frente=new THREE.MeshBasicMaterial({map:this.textura_frente});  
-                this.material_frente.transparent=true;
-                this.mesh=new THREE.Mesh(this.geometry,this.material_frente);
-                parent.elemento_raiz.add(this.mesh);  
-                textura_frente.needsUpdate = true;
+                objeto.actualizarMaterialFrente(texture);
 
             });
         }
@@ -468,6 +473,11 @@ Elemento.prototype.init=function(){
         Elemento.prototype.decrementGrados=function(){
             this.cont--;
         }
+
+        Elemento.prototype.easein=function(){
+            this.animacion.easein.mostrar(this.get(),-800,-2500,this.animacion);
+        }
+
         Elemento.prototype.voltear=function(){
             this.estado=(this.estado) ? false : true;
             if(this.estado){
@@ -495,6 +505,8 @@ Elemento.prototype.init=function(){
         Elemento.prototype.getUmbral=function(){
             return this.umbral_colision;
         }
+
+
 
         Elemento.prototype.actualizarPosicionesYescala=function(posicion,escala){
             this.posiciones.x=posicion.x;
@@ -561,28 +573,31 @@ module.exports=function(width,height){
 function Animacion(){	
 }
 
-Animacion.prototype.easein=function(objeto,limit_z,limit_z_fuera){
-	var limit_z_ocultar,mostrado=false;
-	var parent=this;
-	this.mostrar=function(){
+Animacion.prototype.easein={
+	mostrado:false,
+	mostrar:function(objeto,limit_z,limit_z_fuera,animation){		
+		window.requestAnimationFrame(function(){
+        	animation.easein.mostrar(objeto,limit_z,limit_z_fuera,animation);
+        });
 		if(objeto.position.z<=limit_z){
 			objeto.position.z+=100
-			window.requestAnimFrame(mostrar); 
-			mostrado=true; 		 
-		}else if(mostrado){
+			animation.easein.mostrado=true; 		 
+		}else if(animation.easein.mostrado){
 			limit_z_ocultar=limit_z_fuera;
 			setTimeout(function(){
-				parent.ocultar();
-				mostrado=false;
+				animation.easein.ocultar(objeto,limit_z,limit_z_ocultar,animation);				
+				animation.easein.mostrado=false;
 			},3000)
 		}
-	}
-	this.ocultar=function(){
+	},
+	ocultar:function(objeto,limit_z,limit_z_oculta,animation){
 		if(objeto.position.z>limit_z_ocultar){
-			objeto.position.z-=100;
-			window.requestAnimFrame(this.ocultar);		
+			objeto.position.z-=100;	
+			window.requestAnimationFrame(function(){	        	
+				animation.easein.ocultar(objeto,limit_z,limit_z_ocultar,animation);	
+	        });
 		}else
-			mostrado=false;
+			animation.easein.mostrado=false;
 	}
 }
 

@@ -46,7 +46,6 @@ videoTexture.magFilter = THREE.LinearFilter;
 movieMaterial = new THREE.MeshBasicMaterial( { map: videoTexture, depthTest: false, depthWrite: false} );//new THREE.MeshBasicMaterial( { map: videoTexture, overdraw: true, side:THREE.DoubleSide } );			
 var movieGeometry = new THREE.PlaneGeometry(1,1,0.0);
 movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );
-				//movieScreen.position.set(0,50,0);//*/		
 camara3d=new THREE.Object3D();
 camara3d.position.z=-1;
 camara3d.add(movieScreen);
@@ -69,11 +68,25 @@ realidadScene.add(markerRoot);
 
 mano=new Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
-mano.definir("../assets/img/mano_escala.png");
+mano.definir("../assets/img/mano_escala.png",mano);
 mano.get().position.z=-1;
 objeto=mano.get();
 objeto.matrixAutoUpdate = false;
 realidadScene.add(objeto);
+///*
+indicador_acierto=new Elemento(500,500,new THREE.PlaneGeometry(500,500));
+indicador_acierto.init();
+indicador_acierto.definir("../assets/img/scale/star.png",indicador_acierto);
+indicador_acierto.position(new THREE.Vector3(0,0,-2500));
+planoScene.add(indicador_acierto.get());
+
+indicador_error=new Elemento(500,500,new THREE.PlaneGeometry(500,500));
+indicador_error.init();
+indicador_error.definir("../assets/img/scale/error.png",indicador_error);
+indicador_error.position(new THREE.Vector3(0,0,-2500));
+planoScene.add(indicador_error.get());
+//*/
+
 var cartas={animales:["medusa","ballena","cangrejo","pato"],cocina:["pinzas","refractorio","sarten","rallador"]};
 var tipo_memorama="cocina";
 objetos=[],objetos_mesh=[],objetos_3d=[];        
@@ -164,14 +177,16 @@ function rendering(){
 	renderer.clear();
 	renderer.render( videoScene, videoCamera );
 	renderer.clearDepth();
-    renderer.render( planoScene, planoCamera );
-    renderer.clearDepth();
+  renderer.render( planoScene, planoCamera );
+  renderer.clearDepth();
 	renderer.render( realidadScene, realidadCamera );
 }
 
 function loop(){
 	camara3d.children[0].material.map.needsUpdate=true;
-    //objeto.children[0].material.needsUpdate=true;    
+  indicador_acierto.actualizar();
+  indicador_error.actualizar();
+  //objeto.children[0].material.needsUpdate=true;    
     for(var i=0;i<objetos.length;i++){
     	objetos[i].actualizar();
     }
@@ -188,7 +203,6 @@ function loop(){
             verificarColision();
         }
     }
-	//detectarMarcador();
 	rendering();
 	requestAnimationFrame(loop);
 	if(!pausado_kathia)

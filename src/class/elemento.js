@@ -43,22 +43,13 @@ Elemento.prototype.init=function(){
 
         
 
-        Elemento.prototype.definir=function(ruta){
+        Elemento.prototype.definir=function(ruta,objeto){
             parent=this;
-            texture=this.textureLoader.load( ruta, function() {
+            this.textureLoader.load( ruta, function(texture) {
             //texture = THREE.ImageUtils.loadTexture(ruta, undefined, function() {
 
                 // the rest of your code here...
-
-                this.textura_frente = texture.clone();
-
-                this.textura_frente.minFilter = THREE.LinearFilter;
-                this.textura_frente.magFilter = THREE.LinearFilter;
-                this.material_frente=new THREE.MeshBasicMaterial({map:this.textura_frente});  
-                this.material_frente.transparent=true;
-                this.mesh=new THREE.Mesh(this.geometry,this.material_frente);
-                parent.elemento_raiz.add(this.mesh);  
-                textura_frente.needsUpdate = true;
+                objeto.actualizarMaterialFrente(texture);
 
             });
         }
@@ -183,6 +174,11 @@ Elemento.prototype.init=function(){
         Elemento.prototype.decrementGrados=function(){
             this.cont--;
         }
+
+        Elemento.prototype.easein=function(){
+            this.animacion.easein.mostrar(this.get(),-800,-2500,this.animacion);
+        }
+
         Elemento.prototype.voltear=function(){
             this.estado=(this.estado) ? false : true;
             if(this.estado){
@@ -210,6 +206,8 @@ Elemento.prototype.init=function(){
         Elemento.prototype.getUmbral=function(){
             return this.umbral_colision;
         }
+
+
 
         Elemento.prototype.actualizarPosicionesYescala=function(posicion,escala){
             this.posiciones.x=posicion.x;

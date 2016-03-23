@@ -1,28 +1,31 @@
 function Animacion(){	
 }
 
-Animacion.prototype.easein=function(objeto,limit_z,limit_z_fuera){
-	var limit_z_ocultar,mostrado=false;
-	var parent=this;
-	this.mostrar=function(){
+Animacion.prototype.easein={
+	mostrado:false,
+	mostrar:function(objeto,limit_z,limit_z_fuera,animation){		
+		window.requestAnimationFrame(function(){
+        	animation.easein.mostrar(objeto,limit_z,limit_z_fuera,animation);
+        });
 		if(objeto.position.z<=limit_z){
 			objeto.position.z+=100
-			window.requestAnimFrame(mostrar); 
-			mostrado=true; 		 
-		}else if(mostrado){
+			animation.easein.mostrado=true; 		 
+		}else if(animation.easein.mostrado){
 			limit_z_ocultar=limit_z_fuera;
 			setTimeout(function(){
-				parent.ocultar();
-				mostrado=false;
+				animation.easein.ocultar(objeto,limit_z,limit_z_ocultar,animation);				
+				animation.easein.mostrado=false;
 			},3000)
 		}
-	}
-	this.ocultar=function(){
+	},
+	ocultar:function(objeto,limit_z,limit_z_oculta,animation){
 		if(objeto.position.z>limit_z_ocultar){
-			objeto.position.z-=100;
-			window.requestAnimFrame(this.ocultar);		
+			objeto.position.z-=100;	
+			window.requestAnimationFrame(function(){	        	
+				animation.easein.ocultar(objeto,limit_z,limit_z_ocultar,animation);	
+	        });
 		}else
-			mostrado=false;
+			animation.easein.mostrado=false;
 	}
 }
 
