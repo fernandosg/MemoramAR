@@ -27,6 +27,7 @@ var acierto = new Audio("./assets/sounds/acierto.wav");
 var videoScene=new THREE.Scene(),realidadScene=new THREE.Scene(),planoScene=new THREE.Scene();
 var WIDTH_CANVAS=640,HEIGHT_CANVAS=480;
 var videoCamera=new THREE.Camera();
+var realidadCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
 //webglAvailable();
 var renderer = new THREE.WebGLRenderer();
