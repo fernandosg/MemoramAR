@@ -26,8 +26,7 @@ var error = new Audio("./assets/sounds/error.wav"); // buffers automatically whe
 var acierto = new Audio("./assets/sounds/acierto.wav"); 
 var videoScene=new THREE.Scene(),realidadScene=new THREE.Scene(),planoScene=new THREE.Scene();
 var WIDTH_CANVAS=640,HEIGHT_CANVAS=480;
-var videoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,1000);//THREE.Camera();
-var realidadCamera=new THREE.Camera();
+var videoCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
 //webglAvailable();
 var renderer = new THREE.WebGLRenderer();
@@ -45,7 +44,7 @@ videoTexture=video.texture;
 videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
 movieMaterial = new THREE.MeshBasicMaterial( { map: videoTexture, depthTest: false, depthWrite: false} );//new THREE.MeshBasicMaterial( { map: videoTexture, overdraw: true, side:THREE.DoubleSide } );			
-var movieGeometry = new THREE.PlaneGeometry(1,1,0.0);
+var movieGeometry = new THREE.PlaneGeometry(2,2,0.0);
 movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );
 camara3d=new THREE.Object3D();
 camara3d.position.z=-1;
