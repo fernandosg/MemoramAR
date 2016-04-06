@@ -1,6 +1,6 @@
 var THREEx = THREEx || {}
 
-THREEx.WebcamTexture	= function(){
+THREEx.WebcamTexture	= function(WIDTH_CANVAS,HEIGHT_CANVAS){
 	console.assert(THREEx.WebcamTexture.available === true)
 	// create the video element
 	var video	= document.createElement('video');

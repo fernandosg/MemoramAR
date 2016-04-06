@@ -25,7 +25,7 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 var error = new Audio("./assets/sounds/error.wav"); // buffers automatically when created
 var acierto = new Audio("./assets/sounds/acierto.wav"); 
 var videoScene=new THREE.Scene(),realidadScene=new THREE.Scene(),planoScene=new THREE.Scene();
-var WIDTH_CANVAS=640,HEIGHT_CANVAS=480;
+var WIDTH_CANVAS=600,HEIGHT_CANVAS=480;
 var videoCamera=new THREE.Camera();
 var realidadCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
@@ -34,13 +34,14 @@ var renderer = new THREE.WebGLRenderer();
 planoCamera.lookAt(planoScene.position);
 renderer.autoClear = false;
 renderer.setSize(WIDTH_CANVAS,HEIGHT_CANVAS);
-document.body.appendChild(renderer.domElement);
+document.getElementById("ra").appendChild(renderer.domElement);
 
 
 
-var video=new THREEx.WebcamTexture();
-video.video.width=WIDTH_CANVAS;
-video.video.height=HEIGHT_CANVAS;
+var video=new THREEx.WebcamTexture(WIDTH_CANVAS,HEIGHT_CANVAS);
+
+//video.video.width=WIDTH_CANVAS;
+//video.video.height=HEIGHT_CANVAS;
 videoTexture=video.texture;
 videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
@@ -69,7 +70,7 @@ realidadScene.add(markerRoot);
 
 mano=new Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
-mano.definir("../assets/img/mano_escala.png",mano);
+mano.definir("./assets/img/mano_escala.png",mano);
 mano.get().position.z=-1;
 objeto=mano.get();
 objeto.matrixAutoUpdate = false;
@@ -77,13 +78,13 @@ realidadScene.add(objeto);
 ///*
 indicador_acierto=new Elemento(500,500,new THREE.PlaneGeometry(500,500));
 indicador_acierto.init();
-indicador_acierto.definir("../assets/img/scale/star.png",indicador_acierto);
+indicador_acierto.definir("./assets/img/scale/star.png",indicador_acierto);
 indicador_acierto.position(new THREE.Vector3(0,0,-2500));
 planoScene.add(indicador_acierto.get());
 
 indicador_error=new Elemento(500,500,new THREE.PlaneGeometry(500,500));
 indicador_error.init();
-indicador_error.definir("../assets/img/scale/error.png",indicador_error);
+indicador_error.definir("./assets/img/scale/error.png",indicador_error);
 indicador_error.position(new THREE.Vector3(0,0,-2500));
 planoScene.add(indicador_error.get());
 //*/
@@ -101,7 +102,7 @@ for(var i=1,columna=-100,fila_pos=i,fila=-200;i<=8;i++,fila_pos=((i==5) ? 1 : fi
   objetos_mesh.push(elemento);
   objetos.push(elemento);
   planoScene.add(elemento.get());
-	objetos[objetos.length-1].definirCaras("../assets/img/memorama/sin_voltear.jpg","../assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg",
+	objetos[objetos.length-1].definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg",
     objetos[objetos.length-1]);  
 }
 var material_kathia;
@@ -176,6 +177,10 @@ function verificarColision(){
 	}
 }
 
+function actualizarDistancia(z){
+  document.getElementById("distancia").value=((100*z)/1246);
+}
+
 function rendering(){	
 	renderer.clear();
 	renderer.render( videoScene, videoCamera );
@@ -200,6 +205,7 @@ function loop(){
 	textura_kathia.needsUpdate=true;
     detectado=detector_ar.markerToObject(objeto);
     if(detectado){
+        actualizarDistancia(objeto.getWorldPosition().z);
         if(objeto.getWorldPosition().z<523){
         //console.log("FUE DETECTADO "+detectado+" pero estas muy lejos");
         }else if(objeto.getWorldPosition().z<=623){
@@ -215,6 +221,7 @@ function loop(){
 
 initKathia(texto);
 loop();
+
 },{"../src/class/detector":2,"../src/class/elemento":3,"../src/class/labels":4,"../src/libs/detector.js":6}],2:[function(require,module,exports){
 module.exports=function(canvas_element){
         var JSARRaster,JSARParameters,detector,result;
@@ -321,19 +328,19 @@ Elemento.prototype.init=function(){
 }
 
 
-        Elemento.prototype.etiqueta=function(etiqueta){
-            this.nombre=etiqueta
-        }
+Elemento.prototype.etiqueta=function(etiqueta){
+    this.nombre=etiqueta
+}
 
-        Elemento.prototype.dimensiones=function(){
-            return " "+width+" "+height;        
-        }
+Elemento.prototype.dimensiones=function(){
+    return " "+width+" "+height;        
+}
 
-        Elemento.prototype.calculoOrigen=function(){
-            this.x=(this.posiciones.x+(this.width/2));
-            this.y=(this.posiciones.y+(this.height/2));
-            this.z=this.posiciones.z;
-        }
+Elemento.prototype.calculoOrigen=function(){
+    this.x=(this.posiciones.x+(this.width/2));
+    this.y=(this.posiciones.y+(this.height/2));
+    this.z=this.posiciones.z;
+}
 
 
 /*
@@ -345,183 +352,183 @@ Elemento.prototype.init=function(){
 
         
 
-        Elemento.prototype.definir=function(ruta,objeto){
-            parent=this;
-            this.textureLoader.load( ruta, function(texture) {
+Elemento.prototype.definir=function(ruta,objeto){
+    parent=this;
+    this.textureLoader.load( ruta, function(texture) {
             //texture = THREE.ImageUtils.loadTexture(ruta, undefined, function() {
 
                 // the rest of your code here...
-                objeto.actualizarMaterialFrente(texture);
+        objeto.actualizarMaterialFrente(texture);
 
-            });
-        }
+    });
+}
 
-        Elemento.prototype.actualizarMaterialAtras=function(texture2){
-            this.textura_atras = texture2.clone();
-            this.textura_atras.minFilter = THREE.LinearFilter;
-            this.textura_atras.magFilter = THREE.LinearFilter;
-            this.material_atras=new THREE.MeshBasicMaterial({map:this.textura_atras});  
-            this.material_atras.transparent=true;
+Elemento.prototype.actualizarMaterialAtras=function(texture2){
+    this.textura_atras = texture2.clone();
+    this.textura_atras.minFilter = THREE.LinearFilter;
+    this.textura_atras.magFilter = THREE.LinearFilter;
+    this.material_atras=new THREE.MeshBasicMaterial({map:this.textura_atras});  
+    this.material_atras.transparent=true;
 
-            this.geometria_atras.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI ) );
-            this.mesh2=new THREE.Mesh(this.geometria_atras,this.material_atras);
-            this.elemento_raiz.add(this.mesh2);  
-            this.textura_atras.needsUpdate = true;
-        }
+    this.geometria_atras.applyMatrix( new THREE.Matrix4().makeRotationY( Math.PI ) );
+    this.mesh2=new THREE.Mesh(this.geometria_atras,this.material_atras);
+    this.elemento_raiz.add(this.mesh2);  
+    this.textura_atras.needsUpdate = true;
+}
 
-        Elemento.prototype.actualizarMaterialFrente=function(texture1){
-            this.textura_frente = texture1.clone();
-            this.textura_frente.minFilter = THREE.LinearFilter;
-            this.textura_frente.magFilter = THREE.LinearFilter;
-            this.material_frente=new THREE.MeshBasicMaterial({map:this.textura_frente});  
-            this.material_frente.transparent=true;
-            this.mesh=new THREE.Mesh(this.geometry,this.material_frente);
-            this.elemento_raiz.add(this.mesh);  
-            this.textura_frente.needsUpdate = true;
-        }
+Elemento.prototype.actualizarMaterialFrente=function(texture1){
+    this.textura_frente = texture1.clone();
+    this.textura_frente.minFilter = THREE.LinearFilter;
+    this.textura_frente.magFilter = THREE.LinearFilter;
+    this.material_frente=new THREE.MeshBasicMaterial({map:this.textura_frente});  
+    this.material_frente.transparent=true;
+    this.mesh=new THREE.Mesh(this.geometry,this.material_frente);
+    this.elemento_raiz.add(this.mesh);  
+    this.textura_frente.needsUpdate = true;
+}
 
-        Elemento.prototype.definirCaras=function(frontal,trasera,objeto){ 
-            parent=this;
-            console.dir(this.textureLoader); 
-            this.textureLoader.load( frontal, function(texture1) {
-                objeto.actualizarMaterialFrente(texture1);
-                parent.textureLoader.load(trasera, function(texture2) {                    
-                    objeto.actualizarMaterialAtras(texture2);                                       
-                });  
-            });
+Elemento.prototype.definirCaras=function(frontal,trasera,objeto){ 
+    parent=this;
+    console.dir(this.textureLoader); 
+    this.textureLoader.load( frontal, function(texture1) {
+        objeto.actualizarMaterialFrente(texture1);
+        parent.textureLoader.load(trasera, function(texture2) {                    
+            objeto.actualizarMaterialAtras(texture2);                                       
+        });  
+    });
             
-        }
+}
 
-        Elemento.prototype.getTexturaAtras=function(){
-            return this.textura_atras;
-        }
+Elemento.prototype.getTexturaAtras=function(){
+    return this.textura_atras;
+}
 
-        Elemento.prototype.getTexturaFrente=function(){
-            return this.textura_frente;
-        }
+Elemento.prototype.getTexturaFrente=function(){
+    return this.textura_frente;
+}
 
-        Elemento.prototype.getMaterialAtras=function(){
-            return this.material_atras;
-        }
+Elemento.prototype.getMaterialAtras=function(){
+    return this.material_atras;
+}
 
-        Elemento.prototype.getMaterialFrente=function(){
-            return material_frente;
-        }
+Elemento.prototype.getMaterialFrente=function(){
+    return material_frente;
+}
 
-        Elemento.prototype.getDimensiones=function(){
-            return {width:width,height:height,position:posiciones,geometry:elemento_raiz.geometry};
-        }
+Elemento.prototype.getDimensiones=function(){
+    return {width:width,height:height,position:posiciones,geometry:elemento_raiz.geometry};
+}
 
-        Elemento.prototype.get=function(){
-            return this.elemento_raiz;
-        }
+Elemento.prototype.get=function(){
+    return this.elemento_raiz;
+}
 
-        Elemento.prototype.actualizarMedidas=function(){
-            this.width=this.width*this.elemento_raiz.scale.x;
-            this.height=this.height*this.elemento_raiz.scale.y;
-            this.cambiarUmbral(1);
-        }
+Elemento.prototype.actualizarMedidas=function(){
+    this.width=this.width*this.elemento_raiz.scale.x;
+    this.height=this.height*this.elemento_raiz.scale.y;
+    this.cambiarUmbral(1);
+}
 
-        Elemento.prototype.scale=function(x,y){
-            this.elemento_raiz.scale.x=x;
-            this.elemento_raiz.scale.y=y;        
-            this.actualizarMedidas();
-        }
+Elemento.prototype.scale=function(x,y){
+    this.elemento_raiz.scale.x=x;
+    this.elemento_raiz.scale.y=y;        
+    this.actualizarMedidas();
+}
 
-        Elemento.prototype.position=function(pos){
-            this.elemento_raiz.position.set(pos.x,pos.y,pos.z);
-            this.x=pos.x;
-            this.y=pos.y;
-            this.posiciones=pos;
-        }
+Elemento.prototype.position=function(pos){
+    this.elemento_raiz.position.set(pos.x,pos.y,pos.z);
+    this.x=pos.x;
+    this.y=pos.y;
+    this.posiciones=pos;
+}
 
 
-        Elemento.prototype.actualizar=function(){
-            for(var i=0;i<this.elemento_raiz.children.length;i++)
-                this.elemento_raiz.children[i].material.map.needsUpdate=true;
-            if(this.x!=this.elemento_raiz.position.x ||this.y!=this.elemento_raiz.position.y){           
-               this.x=this.elemento_raiz.position.x;
-               this.y=this.elemento_raiz.position.y;
-                this.posiciones.x=this.elemento_raiz.position.x;
-                this.posiciones.y=this.elemento_raiz.position.y;
-                this.posiciones.z=this.elemento_raiz.position.z;
-                this.calculoOrigen();
-            }
-        }
+Elemento.prototype.actualizar=function(){
+    for(var i=0;i<this.elemento_raiz.children.length;i++)
+        this.elemento_raiz.children[i].material.map.needsUpdate=true;
+    if(this.x!=this.elemento_raiz.position.x ||this.y!=this.elemento_raiz.position.y){           
+        this.x=this.elemento_raiz.position.x;
+        this.y=this.elemento_raiz.position.y;
+        this.posiciones.x=this.elemento_raiz.position.x;
+        this.posiciones.y=this.elemento_raiz.position.y;
+        this.posiciones.z=this.elemento_raiz.position.z;
+        this.calculoOrigen();
+    }
+}
 
        
 
-        Elemento.prototype.colisiona=function(mano){
-            box_mano=new THREE.Box3().setFromObject(mano);
-            box_carta=new THREE.Box3().setFromObject(this.mesh);
-            medidas=box_mano.max.clone();//box_mano.center().clone();
-            medidas.z=(medidas.z*-1);
-            medidas.x=medidas.x-box_mano.size().x*(3/4);
-            medidas.y=medidas.y-box_mano.size().y*(3/4);
-            return box_carta.center().distanceTo(medidas)<=63;
-        }
+Elemento.prototype.colisiona=function(mano){
+    box_mano=new THREE.Box3().setFromObject(mano);
+    box_carta=new THREE.Box3().setFromObject(this.mesh);
+    medidas=box_mano.max.clone();//box_mano.center().clone();
+    medidas.z=(medidas.z*-1);
+    medidas.x=medidas.x-box_mano.size().x*(3/4);
+    medidas.y=medidas.y-box_mano.size().y*(3/4);
+    return box_carta.center().distanceTo(medidas)<=63;
+}
 
-        Elemento.prototype.getGradosActual=function(){
-            return this.cont;
-        }
+Elemento.prototype.getGradosActual=function(){
+    return this.cont;
+}
 
-        Elemento.prototype.rotarY=function(grados){
-            this.elemento_raiz.rotation.y=grados;
-        }
+Elemento.prototype.rotarY=function(grados){
+    this.elemento_raiz.rotation.y=grados;
+}
 
-        Elemento.prototype.incrementGrados=function(){
-            this.cont++;
-        }
+Elemento.prototype.incrementGrados=function(){
+    this.cont++;
+}
 
-        Elemento.prototype.decrementGrados=function(){
-            this.cont--;
-        }
+Elemento.prototype.decrementGrados=function(){
+    this.cont--;
+}
 
-        Elemento.prototype.easein=function(){
-            this.animacion.easein.mostrar(this.get(),-800,-2500,this.animacion);
-        }
+Elemento.prototype.easein=function(){
+    this.animacion.easein.mostrar(this.get(),-800,-2500,this.animacion);
+}
 
-        Elemento.prototype.voltear=function(){
-            this.estado=(this.estado) ? false : true;
-            if(this.estado){
-                this.animacion.ocultar(this,this.animacion);//this.ocultar(this);
-            }else{
-                this.animacion.mostrar(this,this.animacion,180);
-            }
-        }
-
-
-        Elemento.prototype.getNombre=function(){
-            return this.nombre;
-        }
-
-        Elemento.prototype.esParDe=function(objeto){      
-            return this.getNombre()==objeto.getNombre() && this.elemento_raiz.id!=objeto.get().id;
-        }
-
-        Elemento.prototype.igualA=function(objeto){
-            return this.elemento_raiz.id==objeto.get().id;
-        }
-
-        Elemento.prototype.getOrigen=function(){
-            return origen;
-        }
-
-        Elemento.prototype.getUmbral=function(){
-            return this.umbral_colision;
-        }
+Elemento.prototype.voltear=function(){
+    this.estado=(this.estado) ? false : true;
+    if(this.estado){
+        this.animacion.ocultar(this,this.animacion);//this.ocultar(this);
+    }else{
+        this.animacion.mostrar(this,this.animacion,180);
+    }
+}
 
 
+Elemento.prototype.getNombre=function(){
+    return this.nombre;
+}
 
-        Elemento.prototype.actualizarPosicionesYescala=function(posicion,escala){
-            this.posiciones.x=posicion.x;
-            this.posiciones.y=posicion.y;
-            this.posiciones.z=posicion.z;
-            this.escalas.x=escala.x;
-            this.escalas.y=escala.y;
-            this.escalas.z=escala.z;
-            this.calculoOrigen();
-        }
+Elemento.prototype.esParDe=function(objeto){      
+    return this.getNombre()==objeto.getNombre() && this.elemento_raiz.id!=objeto.get().id;
+}
+
+Elemento.prototype.igualA=function(objeto){
+    return this.elemento_raiz.id==objeto.get().id;
+}
+
+Elemento.prototype.getOrigen=function(){
+    return origen;
+}
+
+Elemento.prototype.getUmbral=function(){
+    return this.umbral_colision;
+}
+
+
+
+Elemento.prototype.actualizarPosicionesYescala=function(posicion,escala){
+    this.posiciones.x=posicion.x;
+    this.posiciones.y=posicion.y;
+    this.posiciones.z=posicion.z;
+    this.escalas.x=escala.x;
+    this.escalas.y=escala.y;
+    this.escalas.z=escala.z;
+    this.calculoOrigen();
+}
 module.exports=Elemento;
 },{"../libs/animacion.js":5}],4:[function(require,module,exports){
 module.exports=function(width,height){

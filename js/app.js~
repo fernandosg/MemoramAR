@@ -8,10 +8,10 @@ window.requestAnimFrame = (function(){
                 window.setTimeout(callback(cont), 10 / 600);
               };
     })();
-var Detector=require('../src/libs/detector.js');
-var Labels=require("../src/class/labels");
-var DetectorAR=require("../src/class/detector");
-var Elemento=require("../src/class/elemento");
+var Detector=require('./src/libs/detector.js');
+var Labels=require("./src/class/labels");
+var DetectorAR=require("./src/class/detector");
+var Elemento=require("./src/class/elemento");
 THREE.Matrix4.prototype.setFromArray = function(m) {
         return this.set(
           m[0], m[4], m[8], m[12],
@@ -24,7 +24,7 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 var error = new Audio("./assets/sounds/error.wav"); // buffers automatically when created
 var acierto = new Audio("./assets/sounds/acierto.wav"); 
 var videoScene=new THREE.Scene(),realidadScene=new THREE.Scene(),planoScene=new THREE.Scene();
-var WIDTH_CANVAS=600,HEIGHT_CANVAS=480;
+var WIDTH_CANVAS=640,HEIGHT_CANVAS=480;
 var videoCamera=new THREE.Camera();
 var realidadCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
@@ -33,14 +33,13 @@ var renderer = new THREE.WebGLRenderer();
 planoCamera.lookAt(planoScene.position);
 renderer.autoClear = false;
 renderer.setSize(WIDTH_CANVAS,HEIGHT_CANVAS);
-document.getElementById("ra").appendChild(renderer.domElement);
+document.body.appendChild(renderer.domElement);
 
 
 
-var video=new THREEx.WebcamTexture(WIDTH_CANVAS,HEIGHT_CANVAS);
-
-//video.video.width=WIDTH_CANVAS;
-//video.video.height=HEIGHT_CANVAS;
+var video=new THREEx.WebcamTexture();
+video.video.width=WIDTH_CANVAS;
+video.video.height=HEIGHT_CANVAS;
 videoTexture=video.texture;
 videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
@@ -176,10 +175,6 @@ function verificarColision(){
 	}
 }
 
-function actualizarDistancia(z){
-  document.getElementById("distancia").value=((100*z)/1246);
-}
-
 function rendering(){	
 	renderer.clear();
 	renderer.render( videoScene, videoCamera );
@@ -204,7 +199,6 @@ function loop(){
 	textura_kathia.needsUpdate=true;
     detectado=detector_ar.markerToObject(objeto);
     if(detectado){
-        actualizarDistancia(objeto.getWorldPosition().z);
         if(objeto.getWorldPosition().z<523){
         //console.log("FUE DETECTADO "+detectado+" pero estas muy lejos");
         }else if(objeto.getWorldPosition().z<=623){
