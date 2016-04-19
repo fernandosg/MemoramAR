@@ -3,7 +3,11 @@ function DetectorAR(canvas_element){
     function init(){
         JSARRaster = new NyARRgbRaster_Canvas2D(canvas_element);
         JSARParameters = new FLARParam(canvas_element.width, canvas_element.height);
+<<<<<<< HEAD
         detector = new FLARMultiIdMarkerDetector(JSARParameters, 120);
+=======
+        detector = new FLARMultiIdMarkerDetector(JSARParameters, 40);
+>>>>>>> 62826756d397e97035323cc9b1707eec56209178
         result = new Float32Array(16);
         detector.setContinueMode(true);
         JSARParameters.copyCameraMatrix(result, 10, 1000);        
@@ -65,7 +69,11 @@ function DetectorAR(canvas_element){
     }    
 
     var markerToObject=function(objeto){
+<<<<<<< HEAD
         var markerCount = detector.detectMarkerLite(JSARRaster, 70); 
+=======
+        var markerCount = detector.detectMarkerLite(JSARRaster, 139); 
+>>>>>>> 62826756d397e97035323cc9b1707eec56209178
         if(markerCount>0){            
             objeto.transformFromArray(obtenerMarcador(markerCount));
             return true;            

@@ -8,7 +8,11 @@ module.exports = function (grunt) {
     browserify: {
       dist: {
         files: {
+<<<<<<< HEAD
           'dist/js/bundle.js': ['js/app.js','src/class/elemento.js','src/class/detector.js','src/class/labels.js','src/memorama.js'],
+=======
+          'dist/js/bundle.js': ['js/app.js','src/class/elemento.js','src/class/detector.js','src/class/labels.js'],
+>>>>>>> 62826756d397e97035323cc9b1707eec56209178
         }
       }
     }    

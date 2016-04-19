@@ -1,4 +1,5 @@
 module.exports=function(canvas_element){
+<<<<<<< HEAD
      //var create = function(sourceCanvas) {
         var JSARRaster = new NyARRgbRaster_Canvas2D(canvas_element);
     console.log("veamos el canvas "+canvas_element.width+" "+canvas_element.height);
@@ -23,6 +24,43 @@ module.exports=function(canvas_element){
         var getTransformMatrix = function(idx) {
             var mat = new NyARTransMatResult();
             JSARDetector.getTransformMatrix(idx, mat);
+=======
+        var JSARRaster,JSARParameters,detector,result;
+        function init(){
+            JSARRaster = new NyARRgbRaster_Canvas2D(canvas_element);
+            JSARParameters = new FLARParam(canvas_element.width, canvas_element.height);
+            detector = new FLARMultiIdMarkerDetector(JSARParameters, 40);
+            result = new Float32Array(16);
+            detector.setContinueMode(true);
+            JSARParameters.copyCameraMatrix(result, 10, 1000);        
+            THREE.Object3D.prototype.transformFromArray = function(m) {
+                this.matrix.setFromArray(m);
+                this.matrixWorldNeedsUpdate = true;
+            }
+        }
+
+        var setCameraMatrix=function(realidadCamera){        
+            realidadCamera.projectionMatrix.setFromArray(result);
+        }
+       
+        function getMarkerNumber(idx) {
+        	var data = detector.getIdMarkerData(idx);
+        	if (data.packetLength > 4) {
+            	return -1;
+        	} 
+                    
+        	var result=0;
+        	for (var i = 0; i < data.packetLength; i++ ) {
+            	result = (result << 8) | data.getPacketData(i);
+        	}
+
+        	return result;
+        }
+
+        function getTransformMatrix(idx) {
+            var mat = new NyARTransMatResult();
+            detector.getTransformMatrix(idx, mat);
+>>>>>>> 62826756d397e97035323cc9b1707eec56209178
 
             var cm = new Float32Array(16);
             cm[0] = mat.m00;
@@ -45,6 +83,7 @@ module.exports=function(canvas_element){
             return cm;
         }
 
+<<<<<<< HEAD
         var setCameraMatrix = function(camara) {
             var result = new Float32Array(16);
             JSARParameters.copyCameraMatrix(result, 10, 1000);            
@@ -78,4 +117,30 @@ module.exports=function(canvas_element){
         }
     //}
     
+=======
+        function obtenerMarcador(markerCount){
+            var matriz_encontrada
+            for(var i=0;i<markerCount;i++){
+                matriz_encontrada=getTransformMatrix(i);
+            }   
+            return matriz_encontrada;
+        }    
+
+        var markerToObject=function(objeto){
+            var markerCount = detector.detectMarkerLite(JSARRaster, 139); 
+            if(markerCount>0){            
+                objeto.transformFromArray(obtenerMarcador(markerCount));
+                objeto.scale.x=.5;
+                objeto.scale.y=.5;
+                objeto.matrixWorldNeedsUpdate=true;
+                return true;            
+            }
+            return false;
+        }
+        return{
+            init:init,
+            setCameraMatrix,setCameraMatrix,
+            markerToObject:markerToObject
+        }
+>>>>>>> 62826756d397e97035323cc9b1707eec56209178
 }
