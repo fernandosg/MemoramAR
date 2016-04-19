@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf8">
+	<title>Memorama con JSArtoolkit</title>
+	<style type="text/css">
+		#distancia{
+			width:600px;
+		}
+	</style>
+</head>
+<body>
+	<input type="range" id="distancia" value="0"/>
+	<input type="range" id="threshold" min="0" max="200" value="0"/>
+	<section id="container" style="width:1000px; height:600px;">
+		<div id="ra" style="display:inline-block;"></div>
+		<aside id="informacion" style="display:inline-block; vertical-align:top;">
+			<div id="objetos"></div>
+			<div id="mano">
+				<span>Posicion de la mano</span><br>
+				<span style="color:red;">Posicion X </span><span id="pos_x_mano"></span><br>					
+				<span style="color:red;">Posicion Y </span><span id="pos_y_mano"></span><br>				
+				<span style="color:red;">Posicion Z </span><span id="pos_z_mano"></span><br>
+			</div>
+		</aside>		
+	</section>
+	<div id="debug" style="width:300px; height:200px;">
+	</div>
+	<script type="text/javascript" src="./js/libs/JSARToolKit.min.js"></script>
+	<script type="text/javascript" src="./js/libs/three1.min.js"></script>
+	<script type="text/javascript" src="./js/libs/webcam.js"></script>
+	<script type="text/javascript" src="./js/libs/pixi.min.js"></script>	
+	<script type="text/javascript" src="./js/kathia.js"></script>
+	<script type="text/javascript" src="./dist/js/bundle.js"></script>
+</body>
+</html>
