@@ -34,6 +34,7 @@ Elemento.prototype.calculoOrigen=function(){
 }
 
 
+
 /*
         Elemento.prototype.calculoAncho=function(height_test){
             vFOV = Math.PI/4;
@@ -42,6 +43,13 @@ Elemento.prototype.calculoOrigen=function(){
         }*/
 
         
+
+Elemento.prototype.definirBackground=function(color){
+    color_t=new THREE.Color(color);
+    this.material_frente=new THREE.MeshBasicMaterial({color: color_t,side: THREE.DoubleSide}); 
+    this.mesh=new THREE.Mesh(this.geometry,this.material_frente);
+    this.elemento_raiz.add(this.mesh);  
+}
 
 Elemento.prototype.definir=function(ruta,objeto){
     parent=this;
@@ -53,6 +61,7 @@ Elemento.prototype.definir=function(ruta,objeto){
 
     });
 }
+
 
 Elemento.prototype.actualizarMaterialAtras=function(texture2){
     this.textura_atras = texture2.clone();
@@ -71,7 +80,7 @@ Elemento.prototype.actualizarMaterialFrente=function(texture1){
     this.textura_frente = texture1.clone();
     this.textura_frente.minFilter = THREE.LinearFilter;
     this.textura_frente.magFilter = THREE.LinearFilter;
-    this.material_frente=new THREE.MeshBasicMaterial({map:this.textura_frente});  
+    this.material_frente=new THREE.MeshBasicMaterial({map:this.textura_frente,side: THREE.DoubleSide});  
     this.material_frente.transparent=true;
     this.mesh=new THREE.Mesh(this.geometry,this.material_frente);
     this.elemento_raiz.add(this.mesh);  
@@ -150,13 +159,14 @@ Elemento.prototype.actualizar=function(){
        
 
 Elemento.prototype.colisiona=function(mano){
-    box_mano=new THREE.Box3().setFromObject(mano);
+    box_mano=new THREE.Box3().setFromObject(objeto);
     box_carta=new THREE.Box3().setFromObject(this.mesh);
-    medidas=box_mano.max.clone();//box_mano.center().clone();
-    medidas.z=(medidas.z*-1);
-    medidas.x=medidas.x-box_mano.size().x*(3/4);
-    medidas.y=medidas.y-box_mano.size().y*(3/4);
-    return box_carta.center().distanceTo(medidas)<=63;
+
+    medidas1=box_mano.center().clone();
+    medidas1.z=0;
+    medidas2=box_carta.center().clone();
+    medidas2.z=0;
+    return medidas1.distanceTo(medidas2)<=63;
 }
 
 Elemento.prototype.getGradosActual=function(){
@@ -202,7 +212,7 @@ Elemento.prototype.igualA=function(objeto){
 }
 
 Elemento.prototype.getOrigen=function(){
-    return origen;
+    return "x = "+this.x+" y = "+this.y+" z = "+this.z;
 }
 
 Elemento.prototype.getUmbral=function(){
@@ -218,6 +228,5 @@ Elemento.prototype.actualizarPosicionesYescala=function(posicion,escala){
     this.escalas.x=escala.x;
     this.escalas.y=escala.y;
     this.escalas.z=escala.z;
-    this.calculoOrigen();
 }
 module.exports=Elemento;
